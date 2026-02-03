@@ -18,10 +18,13 @@ class MindMapScreen extends StatefulWidget {
 //
 class _MindMapScreenState extends State<MindMapScreen> {
 
+  bool rootSelected = false;
+
   @override void initState() {
     // TODO: implement initState
     super.initState();
   }
+
 //   List<Item> rootNodes = [];
 //   Map<int, List<Item>> childNodes = {};
 //
@@ -249,42 +252,106 @@ class _MindMapScreenState extends State<MindMapScreen> {
   Widget build(BuildContext context) {
     final category = CategoryType.values[widget.category];
     final title = categoryTitles[category]!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("선택된 카테고리 - $title"),
       ),
       body: Center(
-        child: Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.blue,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 12,
-                  offset: Offset(0, 6),
-                ),
-              ],
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+
+            // 🔹 현수막 / + 버튼
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: rootSelected
+                  ? _plusButton()
+                  : _hintBanner(),
             ),
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+
+            // 🔹 중앙 노드
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  rootSelected = !rootSelected;
+                });
+              },
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 12,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-      )
+          ],
+        ),
+      ),
     );
   }
-}
+
+  Widget _hintBanner() {
+    return Container(
+      key: const ValueKey('hint'),
+      margin: const EdgeInsets.only(bottom: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Text(
+        '노드를 클릭해서 추가하세요',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
+  Widget _plusButton() {
+    return Container(
+      key: const ValueKey('plus'),
+      margin: const EdgeInsets.only(bottom: 180),
+      child: Material(
+        color: Colors.white,
+        shape: const CircleBorder(),
+        elevation: 4,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () {
+            debugPrint('➕ root add');
+          },
+          child: const Padding(
+            padding: EdgeInsets.all(12),
+            child: Icon(Icons.add),
+          ),
+        ),
+      ),
+    );
+  }
+
 //       floatingActionButton: rootNodes.isEmpty
 //           ? null
 //           : FloatingActionButton(
@@ -323,3 +390,5 @@ class _MindMapScreenState extends State<MindMapScreen> {
 //     );
 //   }
 // }
+
+}
