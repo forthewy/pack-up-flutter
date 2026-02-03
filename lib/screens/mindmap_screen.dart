@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/isar_service.dart';
 import '../models/item.dart';
+import 'package:isar/isar.dart';
 
 class MindMapScreen extends StatefulWidget {
   final int category;
@@ -19,59 +20,30 @@ class MindMapScreen extends StatefulWidget {
 class _MindMapScreenState extends State<MindMapScreen> {
 
   bool rootSelected = false;
+  List<Item> items = [];
 
   @override void initState() {
     // TODO: implement initState
     super.initState();
+    _loadRootItems();
   }
 
-//   List<Item> rootNodes = [];
-//   Map<int, List<Item>> childNodes = {};
+  List<Item> rootNodes = [];
+  Map<int, List<Item>> childNodes = {};
 //
-//   @override
-//   void initState() {
-//     super.initState();
-//     _ensureCategoryRoot();
-//   }
-//
-//   // ---------------- 중앙 루트 자동 생성 ----------------
-//   Future<void> _ensureCategoryRoot() async {
-//     final roots = await widget.isarService.getRootItems(widget.category);
-//
-//     if (roots.isNotEmpty) {
-//       setState(() => rootNodes = roots);
-//       return;
-//     }
-//
-//     final root = Item()
-//       ..title = _categoryName(widget.category)
-//       ..category = widget.category
-//       ..parentId = null;
-//
-//    // await widget.isarService.createItem(root);
-//
-//     _loadRootNodes();
-//   }
-//
-//   String _categoryName(int category) {
-//     const names = [
-//       "여행 준비",
-//       "시험 준비",
-//       "쇼핑 목록",
-//       "이사 체크",
-//       "운동 루틴",
-//       "하루 계획",
-//       "회사 준비",
-//       "기타 목록",
-//     ];
-//     return names[category];
-//   }
-//
-//   // ---------------- READ ROOT ----------------
-//   Future<void> _loadRootNodes() async {
-//     final nodes = await widget.isarService.getRootItems(widget.category);
-//     setState(() => rootNodes = nodes);
-//   }
+  Future<void> _loadRootItems() async {
+    final result = await isar.items
+        .filter()
+        .categoryEqualTo(widget.category)
+        .parentIdIsNull()
+        .findAll();
+
+    setState(() {
+      items = result;
+    });
+  }
+
+
 //
 //   // ---------------- READ CHILDREN ----------------
 //   Future<void> _loadChildren(int parentId) async {
@@ -79,50 +51,49 @@ class _MindMapScreenState extends State<MindMapScreen> {
 //     setState(() => childNodes[parentId] = children);
 //   }
 //
-//   // ---------------- CREATE NODE ----------------
-//   Future<void> _addNode(int? parentId) async {
-//     final controller = TextEditingController();
-//
-//     await showDialog(
-//       context: context,
-//       builder: (_) => AlertDialog(
-//         title: const Text("새 항목 추가"),
-//         content: TextField(
-//           controller: controller,
-//           decoration: const InputDecoration(hintText: "제목을 입력하세요"),
-//         ),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.pop(context),
-//             child: const Text("취소"),
-//           ),
-//           ElevatedButton(
-//             onPressed: () async {
-//               if (controller.text.trim().isEmpty) return;
-//
-//               final item = Item()
-//                 ..title = controller.text.trim()
-//                 ..category = widget.category
-//                 ..parentId = parentId
-//                 ..createdAt = DateTime.now();
-//
-//               await widget.isarService.createItem(item);
-//
-//               Navigator.pop(context);
-//
-//               if (parentId == null) {
-//                 _loadRootNodes();
-//               } else {
-//                 _loadChildren(parentId);
-//               }
-//             },
-//             child: const Text("추가"),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
+  // ---------------- CREATE NODE ----------------
+  Future<void> _addNode(int? parentId) async {
+    final controller = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("새 항목 추가"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: "제목을 입력하세요",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("취소"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.trim().isEmpty) return;
+
+              final item = Item()
+                ..title = controller.text.trim()
+                ..category = widget.category
+                ..parentId = parentId
+                ..createdAt = DateTime.now();
+
+              await isar.writeTxn(() async {
+                await isar.items.put(item);
+              });
+
+              Navigator.pop(context);
+              _loadRootItems();
+            },
+            child: const Text("추가"),
+          ),
+        ],
+      ),
+    );
+  }
+
 //   // ---------------- UPDATE ----------------
 //   Future<void> _editNode(Item item) async {
 //     final controller = TextEditingController(text: item.title);
@@ -262,15 +233,15 @@ class _MindMapScreenState extends State<MindMapScreen> {
           alignment: Alignment.center,
           children: [
 
-            // 🔹 현수막 / + 버튼
+            // 안내 멘트 / + 버튼
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child: rootSelected
-                  ? _plusButton()
+                  ? _addButton()
                   : _hintBanner(),
             ),
 
-            // 🔹 중앙 노드
+            // 중앙 노드
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -321,7 +292,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Text(
-        '노드를 클릭해서 추가하세요',
+        '노드를 클릭해서 추가/삭제/수정하세요',
         style: TextStyle(
           color: Colors.white,
           fontSize: 12,
@@ -329,10 +300,10 @@ class _MindMapScreenState extends State<MindMapScreen> {
       ),
     );
   }
-
-  Widget _plusButton() {
+  // 추가 버튼
+  Widget _addButton() {
     return Container(
-      key: const ValueKey('plus'),
+      key: const ValueKey('add'),
       margin: const EdgeInsets.only(bottom: 180),
       child: Material(
         color: Colors.white,
@@ -340,8 +311,9 @@ class _MindMapScreenState extends State<MindMapScreen> {
         elevation: 4,
         child: InkWell(
           customBorder: const CircleBorder(),
-          onTap: () {
-            debugPrint('➕ root add');
+          onTap: () async {
+            await _addNode(null); // 중앙 아래에 추가
+            rootSelected = false;
           },
           child: const Padding(
             padding: EdgeInsets.all(12),
