@@ -20,8 +20,9 @@ class MindMapScreen extends StatefulWidget {
 //
 class _MindMapScreenState extends State<MindMapScreen> {
 
-  bool rootSelected = false;
   List<Item> items = [];
+  int? selectedItemId; // null이면 가지 미선택
+  bool rootSelected = false; // 중앙 선택 여부
 
   static double radius = 180;
 
@@ -264,7 +265,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
 
               return Transform.translate(
                 offset: Offset(dx, dy),
-                child: _itemNode(item),
+                child: _itemNodeWithAdd(item),
               );
             }).toList(),
 
@@ -272,20 +273,21 @@ class _MindMapScreenState extends State<MindMapScreen> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  rootSelected = !rootSelected;
+                  selectedItemId = null; // 중앙 선택 의미
+                  rootSelected = true;
                 });
               },
               child: Container(
-                width: 140,
-                height: 140,
+                width: rootSelected ? 150 : 140,
+                height: rootSelected ? 150 : 140,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.blue,
+                  color: rootSelected ? Colors.blueAccent : Colors.blue,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
-                      blurRadius: 12,
-                      offset: Offset(0, 6),
+                      blurRadius: rootSelected ? 16 : 12,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
@@ -352,35 +354,81 @@ class _MindMapScreenState extends State<MindMapScreen> {
   }
   // 가지 노드 그리기
   Widget _itemNode(Item item) {
-    return Container(
-      width: 90,
-      height: 90,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.orange,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      alignment: Alignment.center,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Text(
-          item.title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
+    final bool isSelected = selectedItemId == item.id;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedItemId = item.id;
+          rootSelected = false; // 중앙 선택 해제
+        });
+      },
+      child: Container(
+        width: isSelected ? 100 : 90,
+        height: isSelected ? 100 : 90,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isSelected ? Colors.deepOrange : Colors.orange,
+          boxShadow: [
+            BoxShadow(
+              color: isSelected ? Colors.black38 : Colors.black26,
+              blurRadius: isSelected ? 12 : 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(
+            item.title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _itemNodeWithAdd(Item item) {
+    final bool isSelected = selectedItemId == item.id;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        _itemNode(item),
+
+        if (isSelected)
+          Positioned(
+            top: -18,
+            child: Material(
+              color: Colors.white,
+              shape: const CircleBorder(),
+              elevation: 4,
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () async {
+                  await _addNode(item.id);
+                  setState(() {
+                    selectedItemId = null;
+                  });
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(6),
+                  child: Icon(Icons.add, size: 16),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
 
 
 //       floatingActionButton: rootNodes.isEmpty
