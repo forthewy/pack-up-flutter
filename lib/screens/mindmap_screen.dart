@@ -22,7 +22,6 @@ class _MindMapScreenState extends State<MindMapScreen> {
 
   List<Item> items = [];
   int? selectedItemId; // null이면 가지 미선택
-  bool rootSelected = false; // 중앙 선택 여부
 
   static double radius = 180;
 
@@ -231,6 +230,8 @@ class _MindMapScreenState extends State<MindMapScreen> {
   Widget build(BuildContext context) {
     final category = CategoryType.values[widget.category];
     final title = categoryTitles[category]!;
+    final bool isCenterSelected = selectedItemId == -1;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -240,14 +241,6 @@ class _MindMapScreenState extends State<MindMapScreen> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-
-            // 안내 멘트 / + 버튼
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: rootSelected
-                  ? _addButton()
-                  : _hintBanner(),
-            ),
             // 가지 노드
             ...items.asMap().entries.map((entry) {
               final index = entry.key;
@@ -263,9 +256,23 @@ class _MindMapScreenState extends State<MindMapScreen> {
               final double dx = radius * cos(angleRad);
               final double dy = radius * sin(angleRad);
 
-              return Transform.translate(
-                offset: Offset(dx, dy),
-                child: _itemNodeWithAdd(item),
+              return Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  // 노드 위치
+                  Transform.translate(
+                    offset: Offset(dx, dy),
+                    child: _itemNode(item),
+                  ),
+
+                  // ⭐ 선택됐을 때만 + 버튼
+                  if (selectedItemId == item.id)
+                    Transform.translate(
+                      offset: Offset(dx, dy - 18), // 노드 위
+                      child: _itemAddButton(item),
+                    ),
+                ],
               );
             }).toList(),
 
@@ -273,20 +280,19 @@ class _MindMapScreenState extends State<MindMapScreen> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedItemId = null; // 중앙 선택 의미
-                  rootSelected = true;
+                  selectedItemId = -1; // 중앙 선택
                 });
               },
               child: Container(
-                width: rootSelected ? 150 : 140,
-                height: rootSelected ? 150 : 140,
+                width: isCenterSelected ? 150 : 140,
+                height: isCenterSelected ? 150 : 140,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: rootSelected ? Colors.blueAccent : Colors.blue,
+                  color: isCenterSelected ? Colors.blueAccent : Colors.blue,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
-                      blurRadius: rootSelected ? 16 : 12,
+                      blurRadius: isCenterSelected ? 16 : 12,
                       offset: const Offset(0, 6),
                     ),
                   ],
@@ -303,6 +309,18 @@ class _MindMapScreenState extends State<MindMapScreen> {
                     ),
                   ),
                 ),
+              ),
+            ),
+            // 중앙 UI (힌트 / 중앙 +)
+            IgnorePointer(
+              ignoring: selectedItemId != -1, // 중앙 선택 아닐 때
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: selectedItemId == null
+                    ? _hintBanner()
+                    : selectedItemId == -1
+                    ? _addButtonForCenter()
+                    : const SizedBox.shrink(),
               ),
             ),
           ],
@@ -329,29 +347,6 @@ class _MindMapScreenState extends State<MindMapScreen> {
       ),
     );
   }
-  // 추가 버튼
-  Widget _addButton() {
-    return Container(
-      key: const ValueKey('add'),
-      margin: const EdgeInsets.only(bottom: 180),
-      child: Material(
-        color: Colors.white,
-        shape: const CircleBorder(),
-        elevation: 4,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: () async {
-            await _addNode(null); // 중앙 아래에 추가
-            rootSelected = false;
-          },
-          child: const Padding(
-            padding: EdgeInsets.all(12),
-            child: Icon(Icons.add),
-          ),
-        ),
-      ),
-    );
-  }
   // 가지 노드 그리기
   Widget _itemNode(Item item) {
     final bool isSelected = selectedItemId == item.id;
@@ -360,7 +355,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
       onTap: () {
         setState(() {
           selectedItemId = item.id;
-          rootSelected = false; // 중앙 선택 해제
+          debugPrint('selected ${item.id}');
         });
       },
       child: Container(
@@ -393,7 +388,6 @@ class _MindMapScreenState extends State<MindMapScreen> {
       ),
     );
   }
-
   Widget _itemNodeWithAdd(Item item) {
     final bool isSelected = selectedItemId == item.id;
 
@@ -414,8 +408,9 @@ class _MindMapScreenState extends State<MindMapScreen> {
                 customBorder: const CircleBorder(),
                 onTap: () async {
                   await _addNode(item.id);
+
                   setState(() {
-                    selectedItemId = null;
+                    selectedItemId = null; // ⭐ 추가 후 초기 상태로 복귀
                   });
                 },
                 child: const Padding(
@@ -428,6 +423,34 @@ class _MindMapScreenState extends State<MindMapScreen> {
       ],
     );
   }
+
+  Widget _addButtonForCenter() {
+    return Container(
+      key: const ValueKey('centerAdd'),
+      margin: const EdgeInsets.only(bottom: 180), // 중앙 위로
+      child: Material(
+        color: Colors.white,
+        shape: const CircleBorder(),
+        elevation: 4,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () async {
+            await _addNode(null);
+            setState(() {
+              selectedItemId = null;
+            });
+          },
+          child: const Padding(
+            padding: EdgeInsets.all(12),
+            child: Icon(Icons.add),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
 
 
 
@@ -469,5 +492,25 @@ class _MindMapScreenState extends State<MindMapScreen> {
 //     );
 //   }
 // }
+  Widget _itemAddButton(Item item) {
+    return Material(
+      color: Colors.white,
+      shape: const CircleBorder(),
+      elevation: 4,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () async {
+          await _addNode(item.id);
+          setState(() {
+            selectedItemId = null;
+          });
+        },
+        child: const Padding(
+          padding: EdgeInsets.all(6),
+          child: Icon(Icons.add, size: 16),
+        ),
+      ),
+    );
+  }
 
 }
