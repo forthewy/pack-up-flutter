@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/isar_service.dart';
 import '../models/item.dart';
 import 'package:isar/isar.dart';
+import 'dart:math';
 
 class MindMapScreen extends StatefulWidget {
   final int category;
@@ -22,6 +23,9 @@ class _MindMapScreenState extends State<MindMapScreen> {
   bool rootSelected = false;
   List<Item> items = [];
 
+  static double radius = 180;
+
+
   @override void initState() {
     // TODO: implement initState
     super.initState();
@@ -37,7 +41,10 @@ class _MindMapScreenState extends State<MindMapScreen> {
         .categoryEqualTo(widget.category)
         .parentIdIsNull()
         .findAll();
-
+    debugPrint('불러온 item 개수: ${result.length}');
+    for (final i in result) {
+      debugPrint('item: ${i.id}, title=${i.title}');
+    }
     setState(() {
       items = result;
     });
@@ -240,6 +247,26 @@ class _MindMapScreenState extends State<MindMapScreen> {
                   ? _addButton()
                   : _hintBanner(),
             ),
+            // 가지 노드
+            ...items.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+
+              final int count = items.length;
+              final double startAngle = 0; // 오른쪽부터
+              final double angleStep = 360 / count;
+
+              final double angleDeg = startAngle + angleStep * index;
+              final double angleRad = angleDeg * pi / 180;
+
+              final double dx = radius * cos(angleRad);
+              final double dy = radius * sin(angleRad);
+
+              return Transform.translate(
+                offset: Offset(dx, dy),
+                child: _itemNode(item),
+              );
+            }).toList(),
 
             // 중앙 노드
             GestureDetector(
@@ -323,6 +350,38 @@ class _MindMapScreenState extends State<MindMapScreen> {
       ),
     );
   }
+  // 가지 노드 그리기
+  Widget _itemNode(Item item) {
+    return Container(
+      width: 90,
+      height: 90,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.orange,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Text(
+          item.title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
 
 //       floatingActionButton: rootNodes.isEmpty
 //           ? null
