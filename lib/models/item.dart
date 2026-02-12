@@ -1,6 +1,3 @@
-import 'package:isar/isar.dart';
-part 'item.g.dart';
-
 enum CategoryType {
   travel,
   study,
@@ -22,18 +19,40 @@ const Map<CategoryType, String> categoryTitles = {
   CategoryType.work: '회사 준비',
   CategoryType.etc: '기타 목록',
 };
-
-
-
-@collection
+// @collection
+//   Id id = Isar.autoIncrement;
 class Item {
-  Id id = Isar.autoIncrement;
+  final int id;
+  final int category;
+  final int? parentId;
+  final String title;
+  final String? note;
+  final DateTime createdAt;
 
-  int? parentId; // 마인드맵 구조를 위한 부모 ID
+  Item({
+    required this.id,
+    required this.category,
+    this.parentId,
+    required this.title,
+    this.note,
+    required this.createdAt,
+  });
 
-  late int category; // CategoryType.index
-  late String title;
-  String? note;
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'category': category,
+    'parentId': parentId,
+    'title': title,
+    'note': note,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
-  DateTime createdAt = DateTime.now();
+  static Item fromMap(Map map) => Item(
+    id: map['id'],
+    category: map['category'],
+    parentId: map['parentId'],
+    title: map['title'],
+    note: map['note'],
+    createdAt: DateTime.parse(map['createdAt']),
+  );
 }

@@ -1,60 +1,271 @@
 import 'package:flutter/material.dart';
-import '../services/isar_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../models/item.dart';
-import 'package:isar/isar.dart';
 
 class MindMapScreen extends StatefulWidget {
   final int category;
-
 
   const MindMapScreen({
     super.key,
     required this.category,
   });
 
-
   @override
   State<MindMapScreen> createState() => _MindMapScreenState();
 }
 
 class _MindMapScreenState extends State<MindMapScreen> {
+  late Box box;
 
   List<Item> items = [];
-  int? selectedItemId; // null이면 가지 미선택
 
-  @override void initState() {
+  /// UI 상태 (접힘/펼침)
+  final Set<int> expandedIds = {};
+
+  @override
+  void initState() {
     super.initState();
-    _loadRootItems();
+    box = Hive.box('items');
+    _loadItems();
   }
 
-  List<Item> rootNodes = [];
-  Map<int, List<Item>> childNodes = {};
+  void _loadItems() {
+    final allItems = box.toMap().entries.map((entry) {
+      final key = entry.key as int;
+      final value = Map<String, dynamic>.from(entry.value);
 
-  Future<void> _loadRootItems() async {
-    final result = await isar.items
-        .filter()
-        .categoryEqualTo(widget.category)
-        .parentIdIsNull()
-        .findAll();
-    debugPrint('불러온 item 개수: ${result.length}');
-    for (final i in result) {
+      return Item(
+        id: key,
+        category: value['category'],
+        parentId: value['parentId'],
+        title: value['title']?? '',
+        note: value['note'],
+        createdAt: value['createdAt'],
+      );
+    }).toList();
+
+    final filtered =
+    allItems.where((i) => i.category == widget.category).toList();
+
+    debugPrint('불러온 item 개수: ${filtered.length}');
+    for (final i in filtered) {
       debugPrint('item: ${i.id}, title=${i.title}');
     }
+
     setState(() {
-      items = result;
+      items = filtered;
+    });
+  }
+
+  void toggleExpanded(int id) {
+    setState(() {
+      if (expandedIds.contains(id)) {
+        expandedIds.remove(id);
+      } else {
+        expandedIds.add(id);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final category = CategoryType.values[widget.category];
-    final title = categoryTitles[category]!;
+    final parents = items.where((i) => i.parentId == null).toList();
+    final categoryType = CategoryType.values[widget.category];
+    // 카테고리타입
+    // 아이템 카테고리는 widget.category == item.category
+    final categoryTitle = categoryTitles[categoryType];
+
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text("선택된 카테고리 - $title"),
+      appBar: AppBar(
+        title: Text('${categoryTitle}'),
+        actions: [
+          IconButton(
+              onPressed: _addButton,
+              icon: const Icon(Icons.add))
+        ],
+      ),
+      body: parents.isEmpty
+          ? const Center(
+        child: Text(
+          '아직 항목이 없어요 🙂\n+ 버튼으로 추가해보세요',
+          textAlign: TextAlign.center,
         ),
-        body: Center()
+      )
+          : ListView(
+        padding: const EdgeInsets.all(12),
+        children: parents.map((parent) {
+          final children =
+          items.where((i) => i.parentId == parent.id).toList();
+          final isExpanded = expandedIds.contains(parent.id);
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text(parent.title),
+                  onLongPress: () => _deleteItem(parent.id),
+                  trailing:
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.add, size:20),
+                        onPressed: () => _addChild(parent.id),
+                      ),
+                      if (children.isNotEmpty)
+                        IconButton(
+                          icon: Icon(
+                            isExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        ),
+                          onPressed: () => toggleExpanded(parent.id),
+                      ),
+                    ],
+                  ),
+                  onTap: children.isEmpty
+                      ? null
+                      : () => toggleExpanded(parent.id),
+                ),
+
+                if (isExpanded)
+                  ...children.map(
+                        (child) => Padding(
+                      padding: const EdgeInsets.only(left: 24),
+                      child: ListTile(
+                        title: Text(child.title),
+                        onLongPress: () => _deleteItem(parent.id),
+                        subtitle: child.note != null
+                            ? Text(child.note!)
+                            : null,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
+    Future<void> _addButton() async{
+      final controller = TextEditingController();
+      final result = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('새 항목 추가'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: '새 항목을 입력하세요',
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('취소')
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, controller.text.trim());
+                },
+                child: const Text('추가'),
+              ),
+            ],
+          );
+        }
+        );
+          // 추가 항목 저장
+          if (result == null || result.isEmpty) return;
+          await box.add({
+            'category': widget.category,
+            'parentId': null,
+            'title': result,
+            'note': null,
+            'createdAt' : DateTime.now(),
+          });
+        _loadItems();
+    }
+
+    // 자식 추가
+    Future<void> _addChild(int parentId) async{
+      final controller = TextEditingController();
+
+      final result = await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('새 항목 추가'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: '새 항목을 입력하세요',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('취소'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, controller.text.trim());
+              },
+              child: const Text('추가'),
+            ),
+          ],
+        ),
+      );
+
+      if (result == null || result.isEmpty) return;
+      await box.add({
+        'category': widget.category,
+        'parentId': parentId,
+        'title': result,
+        'note': null,
+        'createdAt' : DateTime.now(),
+      });
+      expandedIds.add(parentId);
+      _loadItems();
+    }
+
+    Future<void> _deleteItem(int id) async{
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('삭제 확인'),
+          content: const Text('정말로 삭제하시겠습니까?\n토글로 기재된 item 도 삭제됩니다!'),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                child: Text('취소'),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: const Text('삭제')
+            ),
+          ],
+        )
+      );
+
+      if(confirm != true) return;
+      final children = items.where((i) => i.parentId == id).toList();
+      for (final child in children) {
+        await box.delete(child.id);
+      }
+      await box.delete(id);
+      expandedIds.remove(id);
+      _loadItems();
+    }
 }
+

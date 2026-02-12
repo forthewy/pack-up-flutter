@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pack_up/screens/start_screen.dart';
-import 'services/isar_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initIsar(); // DB 준비
-  
+  await Hive.initFlutter();
+  await Hive.openBox('items');
+
   runApp(
       const MyApp()
   );
