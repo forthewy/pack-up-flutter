@@ -151,7 +151,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
                           leading: Checkbox(
                             value: child.isChecked,
                             onChanged: (value) {
-                              _toggleCheck(parent.id, value ?? false);
+                              _toggleCheck(child.id, value ?? false);
                             },
                           ),
                           title: Text(child.title),
@@ -207,6 +207,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
             'title': result,
             'note': null,
             'createdAt' : DateTime.now(),
+            'isChecked': false,
           });
         _loadItems();
     }
