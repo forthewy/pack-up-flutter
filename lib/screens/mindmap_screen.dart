@@ -109,37 +109,40 @@ class _MindMapScreenState extends State<MindMapScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             child: Column(
               children: [
-                ListTile(
-                  leading: Checkbox(
-                    value: parent.isChecked,
-                    onChanged: (value) {
-                      _toggleCheck(parent.id, value ?? false);
-                    },
-                  ),
-                  title: Text(parent.title),
-                  onLongPress: () => _deleteItem(parent.id),
-                  trailing:
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.add, size:20),
-                        onPressed: () => _addChild(parent.id),
-                      ),
-                      if (children.isNotEmpty)
+                GestureDetector(
+                  child: ListTile(
+                    leading: Checkbox(
+                      value: parent.isChecked,
+                      onChanged: (value) {
+                        _toggleCheck(parent.id, value ?? false);
+                      },
+                    ),
+                    title: Text(parent.title),
+                    onLongPress: () => _deleteItem(parent.id),
+                    trailing:
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         IconButton(
-                          icon: Icon(
-                            isExpanded
-                            ? Icons.expand_less
-                            : Icons.expand_more,
+                          icon: const Icon(Icons.add, size:20),
+                          onPressed: () => _addChild(parent.id),
                         ),
-                          onPressed: () => toggleExpanded(parent.id),
-                      ),
-                    ],
+                        if (children.isNotEmpty)
+                          IconButton(
+                            icon: Icon(
+                              isExpanded
+                              ? Icons.expand_less
+                              : Icons.expand_more,
+                          ),
+                            onPressed: () => toggleExpanded(parent.id),
+                        ),
+                      ],
+                    ),
+                    onTap: children.isEmpty
+                        ? null
+                        : () => toggleExpanded(parent.id),
                   ),
-                  onTap: children.isEmpty
-                      ? null
-                      : () => toggleExpanded(parent.id),
+                    onDoubleTap: () => _editItem(parent),
                 ),
 
                 if (isExpanded)
@@ -147,20 +150,23 @@ class _MindMapScreenState extends State<MindMapScreen> {
                         (child) => Padding(
                       padding: const EdgeInsets.only(left: 24),
                       child:
-                        ListTile(
-                          leading: Checkbox(
-                            value: child.isChecked,
-                            onChanged: (value) {
-                              _toggleCheck(child.id, value ?? false);
-                            },
+                        GestureDetector(
+                          child: ListTile(
+                            leading: Checkbox(
+                              value: child.isChecked,
+                              onChanged: (value) {
+                                _toggleCheck(child.id, value ?? false);
+                              },
+                            ),
+                            title: Text(child.title),
+                            onLongPress: () => _deleteItem(child.id),
+                            subtitle: child.note != null
+                                ? Text(child.note!)
+                                : null,
                           ),
-                          title: Text(child.title),
-                          onLongPress: () => _deleteItem(child.id),
-                          subtitle: child.note != null
-                              ? Text(child.note!)
-                              : null,
+                          onDoubleTap: () => _editItem(child),
                         ),
-                      ),
+                        ),
                   ),
               ],
             ),
@@ -175,11 +181,12 @@ class _MindMapScreenState extends State<MindMapScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('새 항목 추가'),
+            title: const Text('Add Item'),
             content: TextField(
               controller: controller,
               decoration: const InputDecoration(
-                hintText: '새 항목을 입력하세요',
+                hintText: 'Enter a new item',
+                // '새 항목을 입력하세요'
               ),
             ),
             actions: [
@@ -187,13 +194,13 @@ class _MindMapScreenState extends State<MindMapScreen> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('취소')
+                  child: const Text('Cancel')
               ),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context, controller.text.trim());
                 },
-                child: const Text('추가'),
+                child: const Text('Add'),
               ),
             ],
           );
@@ -219,11 +226,12 @@ class _MindMapScreenState extends State<MindMapScreen> {
       final result = await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('새 항목 추가'),
+          title: const Text('Add Item'),
           content: TextField(
             controller: controller,
             decoration: const InputDecoration(
-              hintText: '새 항목을 입력하세요',
+              hintText: 'Enter a new item',
+              //'새 항목을 입력하세요',
             ),
           ),
           actions: [
@@ -231,13 +239,13 @@ class _MindMapScreenState extends State<MindMapScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('취소'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context, controller.text.trim());
               },
-              child: const Text('추가'),
+              child: const Text('Add'),
             ),
           ],
         ),
@@ -260,20 +268,24 @@ class _MindMapScreenState extends State<MindMapScreen> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('삭제 확인'),
-          content: const Text('정말로 삭제하시겠습니까?\n토글로 기재된 item 도 삭제됩니다!'),
+          title: const Text('Confirm Deletion'),
+          content:
+            const Text(
+                //'정말로 삭제하시겠습니까?\n토글로 기재된 item 도 삭제됩니다!'),
+              'Are you sure you want to delete?\nItems listed under this will also be deleted',
+            ),
           actions: [
             TextButton(
                 onPressed: () {
                   Navigator.pop(context, false);
                 },
-                child: Text('취소'),
+                child: Text('Cancel'),
             ),
             ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context, true);
                 },
-                child: const Text('삭제')
+                child: const Text('Yes, Delete')
             ),
           ],
         )
@@ -306,8 +318,20 @@ class _MindMapScreenState extends State<MindMapScreen> {
     final map = Map<String, dynamic>.from(raw);
 
     map['isChecked'] = newValue;
-
     await box.put(id, map);
+
+    // 부모 체크시 자식 모두 반영
+    final children =
+    items.where((i) => i.parentId == id).toList();
+
+    if (children.isNotEmpty) {
+      for (final child in children) {
+        final childRaw = box.get(child.id);
+        final childMap = Map<String, dynamic>.from(childRaw);
+        childMap['isChecked'] = newValue;
+        await box.put(child.id, childMap);
+      }
+    }
 
     // 자식 모두 체크 시 부모도 체크
     final parentId = map['parentId'];
@@ -331,6 +355,45 @@ class _MindMapScreenState extends State<MindMapScreen> {
     }
     _loadItems();
   }
+  Future<void> _editItem(Item item) async {
+    final controller =
+    TextEditingController(text: item.title);
 
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Item'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Edit Item',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, controller.text.trim());
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null || result.isEmpty) return;
+
+    final raw = box.get(item.id);
+    final map = Map<String, dynamic>.from(raw);
+
+    map['title'] = result;
+
+    await box.put(item.id, map);
+
+    _loadItems();
+  }
 }
 
