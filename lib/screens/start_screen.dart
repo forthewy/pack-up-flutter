@@ -73,35 +73,35 @@ class StartScreen extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // 설정기타 메뉴
-                SizedBox(
-                  width: 150.0,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('설정 화면은 아직 미구현 🙂'),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      //'설정 / 기타 메뉴',
-                      'SETTING',
-                      style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                  ),
-                ),
+                // // 설정기타 메뉴
+                // SizedBox(
+                //   width: 150.0,
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       ScaffoldMessenger.of(context).showSnackBar(
+                //         const SnackBar(
+                //           content: Text('설정 화면은 아직 미구현 🙂'),
+                //         ),
+                //       );
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: Colors.white,
+                //       foregroundColor: Colors.black,
+                //       elevation: 0,
+                //       padding: const EdgeInsets.symmetric(vertical: 16),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //     ),
+                //     child: const Text(
+                //       //'설정 / 기타 메뉴',
+                //       'SETTING',
+                //       style: TextStyle(
+                //           fontSize: 16,
+                //         ),
+                //       ),
+                //   ),
+                // ),
               ],
             ),
           ),
