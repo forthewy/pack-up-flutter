@@ -19,14 +19,22 @@ class MainMenuScreen extends StatelessWidget {
   ];
 
   final List<String> menuTitles = const [
-    "여행 준비",
-    "시험 준비",
-    "쇼핑 목록",
-    "이사 체크",
-    "운동 루틴",
-    "하루 계획",
-    "회사 준비",
-    "기타 목록",
+    // "여행 준비",
+    // "시험 준비",
+    // "쇼핑 목록",
+    // "이사 체크",
+    // "운동 루틴",
+    // "하루 계획",
+    // "회사 준비",
+    // "기타 목록",
+    "Travel",
+    "Study",
+    "Shopping",
+    "Move",
+    "Fitness",
+    "Daily",
+    "Work",
+    "Etc",
   ];
 
   @override

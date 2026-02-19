@@ -19,7 +19,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
 
   List<Item> items = [];
 
-  /// UI 상태 (접힘/펼침)
+  /// UI 상태 (접힘/펼침) Set --> 중복 방지
   final Set<int> expandedIds = {};
 
   @override
@@ -41,6 +41,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
         title: value['title']?? '',
         note: value['note'],
         createdAt: value['createdAt'],
+        isChecked: value['isChecked'] ?? false,
       );
     }).toList();
 
@@ -88,8 +89,13 @@ class _MindMapScreenState extends State<MindMapScreen> {
       body: parents.isEmpty
           ? const Center(
         child: Text(
-          '아직 항목이 없어요 🙂\n+ 버튼으로 추가해보세요',
+         // '아직 항목이 없어요 🙂\n+ 버튼으로 추가해보세요',
+          'There are no items yet 🙂\nTap the + button to add one',
           textAlign: TextAlign.center,
+          style:
+            TextStyle(
+                fontSize: 26
+            ),
         ),
       )
           : ListView(
@@ -104,6 +110,12 @@ class _MindMapScreenState extends State<MindMapScreen> {
             child: Column(
               children: [
                 ListTile(
+                  leading: Checkbox(
+                    value: parent.isChecked,
+                    onChanged: (value) {
+                      _toggleCheck(parent.id, value ?? false);
+                    },
+                  ),
                   title: Text(parent.title),
                   onLongPress: () => _deleteItem(parent.id),
                   trailing:
@@ -134,14 +146,21 @@ class _MindMapScreenState extends State<MindMapScreen> {
                   ...children.map(
                         (child) => Padding(
                       padding: const EdgeInsets.only(left: 24),
-                      child: ListTile(
-                        title: Text(child.title),
-                        onLongPress: () => _deleteItem(parent.id),
-                        subtitle: child.note != null
-                            ? Text(child.note!)
-                            : null,
+                      child:
+                        ListTile(
+                          leading: Checkbox(
+                            value: child.isChecked,
+                            onChanged: (value) {
+                              _toggleCheck(parent.id, value ?? false);
+                            },
+                          ),
+                          title: Text(child.title),
+                          onLongPress: () => _deleteItem(child.id),
+                          subtitle: child.note != null
+                              ? Text(child.note!)
+                              : null,
+                        ),
                       ),
-                    ),
                   ),
               ],
             ),
@@ -230,6 +249,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
         'title': result,
         'note': null,
         'createdAt' : DateTime.now(),
+        'isChecked': false,
       });
       expandedIds.add(parentId);
       _loadItems();
@@ -259,13 +279,57 @@ class _MindMapScreenState extends State<MindMapScreen> {
       );
 
       if(confirm != true) return;
-      final children = items.where((i) => i.parentId == id).toList();
-      for (final child in children) {
-        await box.delete(child.id);
+      // 현재 삭제 대상이 부모인지 확인
+      final isParent =
+      items.any((i) => i.parentId == id);
+
+      if (isParent) {
+        // 자식들 먼저 삭제
+        final children =
+        items.where((i) => i.parentId == id).toList();
+
+        for (final child in children) {
+          await box.delete(child.id);
+        }
       }
+
+      // 자기 자신 삭제
       await box.delete(id);
       expandedIds.remove(id);
+
       _loadItems();
     }
+
+  Future<void> _toggleCheck(int id, bool newValue) async {
+    final raw = box.get(id);
+    final map = Map<String, dynamic>.from(raw);
+
+    map['isChecked'] = newValue;
+
+    await box.put(id, map);
+
+    // 자식 모두 체크 시 부모도 체크
+    final parentId = map['parentId'];
+
+    if (parentId != null) {
+      final siblings = items
+          .where((i) => i.parentId == parentId)
+          .toList();
+
+      final allChecked =
+      siblings.every((i) => i.id == id
+          ? newValue
+          : i.isChecked);
+
+      final parentRaw = box.get(parentId);
+      final parentMap = Map<String, dynamic>.from(parentRaw);
+
+      parentMap['isChecked'] = allChecked;
+
+      await box.put(parentId, parentMap);
+    }
+    _loadItems();
+  }
+
 }
 

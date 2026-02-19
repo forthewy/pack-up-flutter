@@ -28,10 +28,11 @@ class StartScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 const Text(
-                  '여행 준비부터 시험 준비까지\n모든 준비를 한 곳에서',
+                  //'여행 준비부터 시험 준비까지\n모든 준비를 한 곳에서',
+                  'All your prep, in one place —\nfrom trips to tests.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 26,
                     color: Colors.black54,
                     height: 1.4,
                   ),
@@ -64,7 +65,9 @@ class StartScreen extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    child: const Text('시작하기'),
+                    child:
+                    //const Text('시작하기'),
+                    const Text('START'),
                   ),
                 ),
 
@@ -91,7 +94,8 @@ class StartScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      '설정 / 기타 메뉴',
+                      //'설정 / 기타 메뉴',
+                      'SETTING',
                       style: TextStyle(
                           fontSize: 16,
                         ),

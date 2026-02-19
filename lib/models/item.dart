@@ -10,14 +10,14 @@ enum CategoryType {
 }
 
 const Map<CategoryType, String> categoryTitles = {
-  CategoryType.travel: '여행 준비',
-  CategoryType.study: '시험 준비',
-  CategoryType.shopping: '쇼핑 목록',
-  CategoryType.move: '이사 체크',
-  CategoryType.fitness: '운동 루틴',
-  CategoryType.daily: '하루 계획',
-  CategoryType.work: '회사 준비',
-  CategoryType.etc: '기타 목록',
+  CategoryType.travel: 'Travel',
+  CategoryType.study: 'Study',
+  CategoryType.shopping: 'Shopping',
+  CategoryType.move: 'Move',
+  CategoryType.fitness: 'Fitness',
+  CategoryType.daily: 'Daily',
+  CategoryType.work: 'Work',
+  CategoryType.etc: 'Etc',
 };
 // @collection
 //   Id id = Isar.autoIncrement;
@@ -28,6 +28,7 @@ class Item {
   final String title;
   final String? note;
   final DateTime createdAt;
+  final bool isChecked;
 
   Item({
     required this.id,
@@ -36,6 +37,7 @@ class Item {
     required this.title,
     this.note,
     required this.createdAt,
+    required this.isChecked,
   });
 
   Map<String, dynamic> toMap() => {
@@ -45,6 +47,7 @@ class Item {
     'title': title,
     'note': note,
     'createdAt': createdAt.toIso8601String(),
+    'isChecked' : isChecked,
   };
 
   static Item fromMap(Map map) => Item(
@@ -54,5 +57,6 @@ class Item {
     title: map['title'],
     note: map['note'],
     createdAt: DateTime.parse(map['createdAt']),
+    isChecked: map['isChecked'],
   );
 }
