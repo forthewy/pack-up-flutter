@@ -37,6 +37,7 @@ void main() async {
     @override
     Widget build(BuildContext context) {
       return MaterialApp(
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             fontFamily: 'GowunDodumKor',
 

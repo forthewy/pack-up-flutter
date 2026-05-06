@@ -65,7 +65,9 @@ class MainMenuScreen extends StatelessWidget {
       // 카드 만들기
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(
+            (8 * percent).clamp(2, 8),
+          ),
           child: ValueListenableBuilder(
             valueListenable: Hive.box('items').listenable(),
             builder: (context, Box box, _) {
@@ -74,11 +76,6 @@ class MainMenuScreen extends StatelessWidget {
                 menuIndex,
               );
 
-              if (percent < 0.3) {
-                return Center(child: Icon(menuIcons[menuIndex], size: 20));
-              }
-
-              double scale = (itemHeight / 100).clamp(0.5, 1.0).toDouble();
               return Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -87,22 +84,33 @@ class MainMenuScreen extends StatelessWidget {
                   Icon(
                     menuIcons[menuIndex],
                     // scale 따라 아이콘 사이즈 변경
-                    size: 20 + (12 * scale),
+                    size: (itemHeight * 0.3).clamp(16, 40),
                   ),
 
                   // 아이콘 이외 진행도,타이틀
-                  Expanded(
-                    child: Opacity(
-                      opacity: scale,
-                      child: LayoutBuilder(
-                        builder: (context, innerConstraints) {
-                          final h = innerConstraints.maxHeight;
-
-                          if (h < 30) {
-                            return const SizedBox(); // 아무것도 안 그림
-                          }
-
-                          if (h < 45) {
+                  if (percent > 0.6)
+                    Expanded(
+                      child: Opacity(
+                        opacity: ((percent - 0.6) / 0.4).clamp(0.0, 1.0),
+                        child: LayoutBuilder(
+                          builder: (context, innerConstraints) {
+                            if (percent > 0.9) {
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(menuTitles[menuIndex]),
+                                  SizedBox(
+                                    height: (itemHeight * 0.03).clamp(2, 6),
+                                  ),
+                                  LinearProgressIndicator(value: progress),
+                                  SizedBox(
+                                    height: (itemHeight * 0.03).clamp(2, 6),
+                                  ),
+                                  Text("${(progress * 100).round()}%"),
+                                ],
+                              );
+                            }
+                            // 0.6 ~ 0.9 구간
                             return Center(
                               child: Text(
                                 menuTitles[menuIndex],
@@ -110,33 +118,10 @@ class MainMenuScreen extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             );
-                          }
-
-                          if (h < 60) {
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(menuTitles[menuIndex]),
-                                LinearProgressIndicator(value: progress),
-                              ],
-                            );
-                          }
-
-                          // 충분히 클 때만 전체 UI
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(menuTitles[menuIndex]),
-                              SizedBox(height: 4),
-                              LinearProgressIndicator(value: progress),
-                              SizedBox(height: 2),
-                              Text("${(progress * 100).round()}%"),
-                            ],
-                          );
-                        },
+                          },
+                        ),
                       ),
                     ),
-                  ),
                 ],
               );
             },
@@ -256,8 +241,7 @@ class MainMenuScreen extends StatelessWidget {
         elevation: 1,
       ),
 
-      body: 
-      SafeArea(
+      body: SafeArea(
         child: CustomScrollView(
           slivers: [
             /// 상단
@@ -266,19 +250,19 @@ class MainMenuScreen extends StatelessWidget {
               expandedHeight: expandedHeight,
               collapsedHeight: collapsedHeight,
               pinned: true,
-        
+
               flexibleSpace: LayoutBuilder(
                 builder: (context, constraints) {
                   final itemHeight = (constraints.maxHeight / 3)
                       .clamp(70, 200)
                       .toDouble();
-        
+
                   final percent =
                       (constraints.maxHeight - collapsedHeight) /
                       (expandedHeight - collapsedHeight);
-        
+
                   final isCollapsed = percent < 0.7;
-        
+
                   return Padding(
                     padding: EdgeInsets.all(isCollapsed ? 4 : 8),
                     child: Center(
@@ -292,10 +276,10 @@ class MainMenuScreen extends StatelessWidget {
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                  mainAxisExtent: (constraints.maxHeight / 3)
-                                      .clamp(70, 200)
+                                  crossAxisSpacing: (10 * percent).clamp(4, 10),
+                                  mainAxisSpacing: (10 * percent).clamp(4, 10),
+                                  mainAxisExtent: (constraints.maxHeight / 3.3)
+                                      .clamp(30, 200)
                                       .toDouble(),
                                 ),
                             itemBuilder: (context, index) {
