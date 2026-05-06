@@ -15,7 +15,7 @@ class StartScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 앱 타이틀
+                // App Title
                 const Text(
                   'Pack Up!',
                   style: TextStyle(
@@ -72,6 +72,22 @@ class StartScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    showLicensePage(
+                      context: context,
+                      applicationName: 'Pack Up',
+                      applicationVersion: '1.0.0',
+                    );
+                  },
+                  child: const Text(
+                    'Licenses',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
 
                 // // 설정기타 메뉴
                 // SizedBox(

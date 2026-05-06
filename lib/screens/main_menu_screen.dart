@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'mindmap_screen.dart';
+import '../services/progress_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class MainMenuScreen extends StatelessWidget {
-
-  const MainMenuScreen({
-    super.key,
-  });
+  const MainMenuScreen({super.key});
 
   final List<IconData> menuIcons = const [
     Icons.airplanemode_active,
@@ -37,8 +36,217 @@ class MainMenuScreen extends StatelessWidget {
     "Etc",
   ];
 
+  // 상단 메뉴 위젯
+  Widget buildMenuItem(
+    BuildContext context,
+    int index,
+    bool isCollapsed,
+    double percent,
+    double itemHeight,
+  ) {
+    // 중앙 로고
+    if (index == 4) {
+      return Card(
+        color: Colors.blue.shade50,
+        child: const Center(child: Text("Pack Up!")),
+      );
+    }
+
+    int menuIndex = index > 4 ? index - 1 : index;
+
+    return GestureDetector(
+      // 클릭시 해당 카테고리로 이동
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MindMapScreen(category: menuIndex)),
+        );
+      },
+      // 카드 만들기
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: ValueListenableBuilder(
+            valueListenable: Hive.box('items').listenable(),
+            builder: (context, Box box, _) {
+              final progress = ProgressService.calculateCategoryProgress(
+                box,
+                menuIndex,
+              );
+
+              if (percent < 0.3) {
+                return Center(child: Icon(menuIcons[menuIndex], size: 20));
+              }
+
+              double scale = (itemHeight / 100).clamp(0.5, 1.0).toDouble();
+              return Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  /// 아이콘
+                  Icon(
+                    menuIcons[menuIndex],
+                    // scale 따라 아이콘 사이즈 변경
+                    size: 20 + (12 * scale),
+                  ),
+
+                  // 아이콘 이외 진행도,타이틀
+                  Expanded(
+                    child: Opacity(
+                      opacity: scale,
+                      child: LayoutBuilder(
+                        builder: (context, innerConstraints) {
+                          final h = innerConstraints.maxHeight;
+
+                          if (h < 30) {
+                            return const SizedBox(); // 아무것도 안 그림
+                          }
+
+                          if (h < 45) {
+                            return Center(
+                              child: Text(
+                                menuTitles[menuIndex],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          }
+
+                          if (h < 60) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(menuTitles[menuIndex]),
+                                LinearProgressIndicator(value: progress),
+                              ],
+                            );
+                          }
+
+                          // 충분히 클 때만 전체 UI
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(menuTitles[menuIndex]),
+                              SizedBox(height: 4),
+                              LinearProgressIndicator(value: progress),
+                              SizedBox(height: 2),
+                              Text("${(progress * 100).round()}%"),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildBottomList(BuildContext context, int index) {
+    return ValueListenableBuilder(
+      valueListenable: Hive.box('items').listenable(),
+      builder: (context, Box box, _) {
+        final progress = ProgressService.calculateCategoryProgress(box, index);
+
+        final total = box.values.where((item) {
+          return item['category'] == index;
+        }).length;
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => MindMapScreen(category: index)),
+            );
+          },
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  /// 🔵 아이콘
+                  Icon(menuIcons[index], size: 28),
+
+                  const SizedBox(width: 16),
+
+                  /// 🟡 텍스트 영역
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /// 이름 + 개수
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              menuTitles[index],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              "total : $total",
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        /// 🔥 진행도 (네모 10개)
+                        Row(
+                          children: List.generate(10, (i) {
+                            return Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 1,
+                                ),
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: i < (progress * 10).round()
+                                      ? Colors.blue
+                                      : Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  /// 🔴 퍼센트
+                  Text(
+                    "${(progress * 100).round()}%",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final expandedHeight = screenHeight * 0.65;
+    final collapsedHeight = screenHeight * 0.22;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
@@ -48,102 +256,76 @@ class MainMenuScreen extends StatelessWidget {
         elevation: 1,
       ),
 
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: 480,
-            height: 480,
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 9,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemBuilder: (context, index) {
-                // 중앙 로고
-                if (index == 4) {
-                  return Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    color: Colors.blue.shade50,
-                    child: const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children:
-                           <Widget>[
-                            Icon(Icons.shopping_bag, color: Colors.black),
-                            SizedBox(width: 6),
-                            Text(
-                              "Pack Up!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.blue,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                          ],
+      body: 
+      SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            /// 상단
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              expandedHeight: expandedHeight,
+              collapsedHeight: collapsedHeight,
+              pinned: true,
+        
+              flexibleSpace: LayoutBuilder(
+                builder: (context, constraints) {
+                  final itemHeight = (constraints.maxHeight / 3)
+                      .clamp(70, 200)
+                      .toDouble();
+        
+                  final percent =
+                      (constraints.maxHeight - collapsedHeight) /
+                      (expandedHeight - collapsedHeight);
+        
+                  final isCollapsed = percent < 0.7;
+        
+                  return Padding(
+                    padding: EdgeInsets.all(isCollapsed ? 4 : 8),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 500),
+                        child: SizedBox(
+                          height: constraints.maxHeight,
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: 9,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                  mainAxisExtent: (constraints.maxHeight / 3)
+                                      .clamp(70, 200)
+                                      .toDouble(),
+                                ),
+                            itemBuilder: (context, index) {
+                              return buildMenuItem(
+                                context,
+                                index,
+                                isCollapsed,
+                                percent,
+                                itemHeight,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
                   );
-                }
-
-                int menuIndex = index > 4 ? index - 1 : index;
-
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => MindMapScreen(
-                          category: menuIndex,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            menuIcons[menuIndex],
-                            size: 32,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            menuTitles[menuIndex],
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF333333),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                },
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: buildBottomList(context, index),
                   ),
                 );
-              },
+              }, childCount: 8),
             ),
-          ),
+          ],
         ),
       ),
     );

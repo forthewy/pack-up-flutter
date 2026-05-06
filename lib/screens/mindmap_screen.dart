@@ -15,6 +15,15 @@ class MindMapScreen extends StatefulWidget {
 }
 
 class _MindMapScreenState extends State<MindMapScreen> {
+  double get progress {
+    final total = items.length;
+    if (total == 0) return 0.0;
+
+    final checked =
+        items.where((e) => e.isChecked).length;
+
+    return checked / total;
+  }
   late Box box;
 
   List<Item> items = [];
@@ -48,10 +57,10 @@ class _MindMapScreenState extends State<MindMapScreen> {
     final filtered =
     allItems.where((i) => i.category == widget.category).toList();
 
-    debugPrint('불러온 item 개수: ${filtered.length}');
-    for (final i in filtered) {
-      debugPrint('item: ${i.id}, title=${i.title}');
-    }
+    // debugPrint('불러온 item 개수: ${filtered.length}');
+    // for (final i in filtered) {
+    //   debugPrint('item: ${i.id}, title=${i.title}');
+    // }
 
     setState(() {
       items = filtered;
@@ -79,13 +88,36 @@ class _MindMapScreenState extends State<MindMapScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${categoryTitle}'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("${categoryTitle}"),
+            Text(
+              "${(progress * 100).round()}%",
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
               onPressed: _addButton,
-              icon: const Icon(Icons.add))
+              icon: const Icon(Icons.add)
+          )
         ],
       ),
+      // 하단 추가 버튼
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addButton,
+        backgroundColor: Color(0xFFFFE53B), // 노란 버튼
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(50), // 반원 느낌
+          ),
+        ),
+        child: const Icon(Icons.add, color: Colors.black),
+      ),
+
       body: parents.isEmpty
           ? const Center(
         child: Text(
@@ -98,8 +130,9 @@ class _MindMapScreenState extends State<MindMapScreen> {
             ),
         ),
       )
-          : ListView(
-        padding: const EdgeInsets.all(12),
+          :
+        ListView(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 160),
         children: parents.map((parent) {
           final children =
           items.where((i) => i.parentId == parent.id).toList();
@@ -109,8 +142,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             child: Column(
               children: [
-                GestureDetector(
-                  child: ListTile(
+                  ListTile(
                     leading: Checkbox(
                       value: parent.isChecked,
                       onChanged: (value) {
@@ -138,20 +170,15 @@ class _MindMapScreenState extends State<MindMapScreen> {
                         ),
                       ],
                     ),
-                    onTap: children.isEmpty
-                        ? null
-                        : () => toggleExpanded(parent.id),
+                    onTap: () => _editItem(parent),
                   ),
-                    onDoubleTap: () => _editItem(parent),
-                ),
 
                 if (isExpanded)
                   ...children.map(
                         (child) => Padding(
                       padding: const EdgeInsets.only(left: 24),
                       child:
-                        GestureDetector(
-                          child: ListTile(
+                          ListTile(
                             leading: Checkbox(
                               value: child.isChecked,
                               onChanged: (value) {
@@ -163,8 +190,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
                             subtitle: child.note != null
                                 ? Text(child.note!)
                                 : null,
-                          ),
-                          onDoubleTap: () => _editItem(child),
+                          onTap: () => _editItem(child),
                         ),
                         ),
                   ),
