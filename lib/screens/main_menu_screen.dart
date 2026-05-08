@@ -40,7 +40,6 @@ class MainMenuScreen extends StatelessWidget {
   Widget buildMenuItem(
     BuildContext context,
     int index,
-    bool isCollapsed,
     double percent,
     double itemHeight,
   ) {
@@ -66,7 +65,7 @@ class MainMenuScreen extends StatelessWidget {
       child: Card(
         child: Padding(
           padding: EdgeInsets.all(
-            (8 * percent).clamp(2, 8),
+            (8 * percent), // 내부 패딩
           ),
           child: ValueListenableBuilder(
             valueListenable: Hive.box('items').listenable(),
@@ -84,7 +83,7 @@ class MainMenuScreen extends StatelessWidget {
                   Icon(
                     menuIcons[menuIndex],
                     // scale 따라 아이콘 사이즈 변경
-                    size: (itemHeight * 0.3).clamp(16, 40),
+                    size: (itemHeight * 0.3),
                   ),
 
                   // 아이콘 이외 진행도,타이틀
@@ -100,11 +99,11 @@ class MainMenuScreen extends StatelessWidget {
                                 children: [
                                   Text(menuTitles[menuIndex]),
                                   SizedBox(
-                                    height: (itemHeight * 0.03).clamp(2, 6),
+                                    height: (itemHeight * 0.03),
                                   ),
                                   LinearProgressIndicator(value: progress),
                                   SizedBox(
-                                    height: (itemHeight * 0.03).clamp(2, 6),
+                                    height: (itemHeight * 0.03),
                                   ),
                                   Text("${(progress * 100).round()}%"),
                                 ],
@@ -261,10 +260,8 @@ class MainMenuScreen extends StatelessWidget {
                       (constraints.maxHeight - collapsedHeight) /
                       (expandedHeight - collapsedHeight);
 
-                  final isCollapsed = percent < 0.7;
-
                   return Padding(
-                    padding: EdgeInsets.all(isCollapsed ? 4 : 8),
+                    padding: EdgeInsets.all(4),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 500),
@@ -276,8 +273,8 @@ class MainMenuScreen extends StatelessWidget {
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
-                                  crossAxisSpacing: (10 * percent).clamp(4, 10),
-                                  mainAxisSpacing: (10 * percent).clamp(4, 10),
+                                  crossAxisSpacing: 5 * percent,
+                                  mainAxisSpacing: 5 * percent,
                                   mainAxisExtent: (constraints.maxHeight / 3.3)
                                       .clamp(30, 200)
                                       .toDouble(),
@@ -286,7 +283,6 @@ class MainMenuScreen extends StatelessWidget {
                               return buildMenuItem(
                                 context,
                                 index,
-                                isCollapsed,
                                 percent,
                                 itemHeight,
                               );
