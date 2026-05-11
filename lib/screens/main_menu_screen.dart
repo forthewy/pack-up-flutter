@@ -65,7 +65,7 @@ class MainMenuScreen extends StatelessWidget {
       child: Card(
         child: Padding(
           padding: EdgeInsets.all(
-            (8 * percent), // 내부 패딩
+            (itemHeight * 0.01 * percent), // 내부 패딩
           ),
           child: ValueListenableBuilder(
             valueListenable: Hive.box('items').listenable(),
@@ -79,49 +79,71 @@ class MainMenuScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  /// 아이콘
-                  Icon(
-                    menuIcons[menuIndex],
-                    // scale 따라 아이콘 사이즈 변경
-                    size: (itemHeight * 0.3),
-                  ),
+                  // /// 아이콘
+                  // Icon(
+                  //   menuIcons[menuIndex],
+                  //   // scale 따라 아이콘 사이즈 변경
+                  //   size: (itemHeight * 0.3),
+                  // ),
 
                   // 아이콘 이외 진행도,타이틀
                   if (percent > 0.6)
                     Expanded(
                       child: Opacity(
-                        opacity: ((percent - 0.6) / 0.4).clamp(0.0, 1.0),
+                        opacity: ((percent - 0.6) / 0.15).clamp(0.0, 1.0),
                         child: LayoutBuilder(
                           builder: (context, innerConstraints) {
-                            if (percent > 0.9) {
+                            // 스크롤 90퍼 , itemHeight 120 보다 클때만 전체정보
+                            if (percent > 0.9 && itemHeight > 120) {
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(menuTitles[menuIndex]),
-                                  SizedBox(
-                                    height: (itemHeight * 0.03),
+                                  Icon(menuIcons[menuIndex], size: 33),
+                                  SizedBox(height: itemHeight * 0.05),
+                                  Text(
+                                    menuTitles[menuIndex],
+                                    style: TextStyle(
+                                      fontSize: itemHeight * 0.15,
+                                    ),
                                   ),
+                                  SizedBox(height: itemHeight * 0.01),
                                   LinearProgressIndicator(value: progress),
-                                  SizedBox(
-                                    height: (itemHeight * 0.03),
+                                  SizedBox(height: itemHeight * 0.03),
+                                  Text(
+                                    "${(progress * 100).round()}%",
+                                    style: TextStyle(
+                                      fontSize: itemHeight * 0.13,
+                                    ),
                                   ),
-                                  Text("${(progress * 100).round()}%"),
+                                  SizedBox(height: itemHeight * 0.01),
                                 ],
                               );
                             }
-                            // 0.6 ~ 0.9 구간
+                            // 0.6 ~ 0.9
                             return Center(
-                              child: Text(
-                                menuTitles[menuIndex],
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(menuIcons[menuIndex], size: itemHeight * 0.5),
+                                  Text(
+                                    menuTitles[menuIndex],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
                             );
                           },
                         ),
                       ),
-                    ),
-                ],
+                    )
+                    else
+                      Opacity(
+                        opacity: ((0.6 - percent) / 0.7).clamp(0.0, 1.0),
+                        child:
+                          Icon(menuIcons[menuIndex], size: itemHeight * 0.5),
+                      ),
+                  ],
               );
             },
           ),
@@ -252,8 +274,8 @@ class MainMenuScreen extends StatelessWidget {
 
               flexibleSpace: LayoutBuilder(
                 builder: (context, constraints) {
-                  final itemHeight = (constraints.maxHeight / 3)
-                      .clamp(70, 200)
+                  final itemHeight = (constraints.maxHeight / 3.3)
+                      .clamp(30, 200)
                       .toDouble();
 
                   final percent =
@@ -275,9 +297,7 @@ class MainMenuScreen extends StatelessWidget {
                                   crossAxisCount: 3,
                                   crossAxisSpacing: 5 * percent,
                                   mainAxisSpacing: 5 * percent,
-                                  mainAxisExtent: (constraints.maxHeight / 3.3)
-                                      .clamp(30, 200)
-                                      .toDouble(),
+                                  mainAxisExtent: itemHeight, // 카드 높이
                                 ),
                             itemBuilder: (context, index) {
                               return buildMenuItem(

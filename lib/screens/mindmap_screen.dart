@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/item.dart';
+import 'package:flutter/services.dart';
 
 class MindMapScreen extends StatefulWidget {
   final int category;
@@ -36,6 +37,22 @@ class _MindMapScreenState extends State<MindMapScreen> {
     super.initState();
     box = Hive.box('items');
     _loadItems();
+
+    // 들어오면 세로 고정
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+  }
+
+  @override
+  void dispose() {
+
+    // 나가면 다시 전체 허용
+    SystemChrome.setPreferredOrientations(
+      DeviceOrientation.values,
+    );
+
+    super.dispose();
   }
 
   void _loadItems() {
@@ -91,7 +108,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("${categoryTitle}"),
+            Text("$categoryTitle"),
             Text(
               "${(progress * 100).round()}%",
               style: const TextStyle(fontSize: 12),
