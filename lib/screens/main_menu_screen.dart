@@ -79,12 +79,6 @@ class MainMenuScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // /// 아이콘
-                  // Icon(
-                  //   menuIcons[menuIndex],
-                  //   // scale 따라 아이콘 사이즈 변경
-                  //   size: (itemHeight * 0.3),
-                  // ),
 
                   // 아이콘 이외 진행도,타이틀
                   if (percent > 0.6)
@@ -98,12 +92,13 @@ class MainMenuScreen extends StatelessWidget {
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
+                                  SizedBox(height: itemHeight * 0.05),
                                   Icon(menuIcons[menuIndex], size: 33),
                                   SizedBox(height: itemHeight * 0.05),
                                   Text(
                                     menuTitles[menuIndex],
                                     style: TextStyle(
-                                      fontSize: itemHeight * 0.15,
+                                      fontSize: itemHeight * 0.13,
                                     ),
                                   ),
                                   SizedBox(height: itemHeight * 0.01),
@@ -141,7 +136,8 @@ class MainMenuScreen extends StatelessWidget {
                       Opacity(
                         opacity: ((0.6 - percent) / 0.7).clamp(0.0, 1.0),
                         child:
-                          Icon(menuIcons[menuIndex], size: itemHeight * 0.5),
+                          Icon(menuIcons[menuIndex], size: (itemHeight * 0.45).clamp(14, 40)),
+                          //overflow: TextOverflow.ellipsis,
                       ),
                   ],
               );
