@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'main_menu_screen.dart';
 
 class StartScreen extends StatelessWidget {
@@ -27,9 +28,8 @@ class StartScreen extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                const Text(
-                  //'여행 준비부터 시험 준비까지\n모든 준비를 한 곳에서',
-                  'All your prep, in one place —\nfrom trips to tests.',
+                Text(
+                  AppLocalizations.of(context)!.startScreenAppInfo,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 26,
@@ -66,8 +66,7 @@ class StartScreen extends StatelessWidget {
                       ),
                     ),
                     child:
-                    //const Text('시작하기'),
-                    const Text('START'),
+                      Text(AppLocalizations.of(context)!.start),
                   ),
                 ),
 
@@ -77,7 +76,7 @@ class StartScreen extends StatelessWidget {
                     showLicensePage(
                       context: context,
                       applicationName: 'Pack Up',
-                      applicationVersion: '1.0.0',
+                      applicationVersion: '1.0.5',
                     );
                   },
                   child: const Text(
@@ -96,7 +95,7 @@ class StartScreen extends StatelessWidget {
                 //     onPressed: () {
                 //       ScaffoldMessenger.of(context).showSnackBar(
                 //         const SnackBar(
-                //           content: Text('설정 화면은 아직 미구현 🙂'),
+                //           content: Text('설정 화면은 아직 미구현 '),
                 //         ),
                 //       );
                 //     },

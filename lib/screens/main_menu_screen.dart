@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pack_up/l10n/app_localizations.dart';
 import 'mindmap_screen.dart';
 import '../services/progress_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -17,24 +18,21 @@ class MainMenuScreen extends StatelessWidget {
     Icons.more_horiz,
   ];
 
-  final List<String> menuTitles = const [
-    // "여행 준비",
-    // "시험 준비",
-    // "쇼핑 목록",
-    // "이사 체크",
-    // "운동 루틴",
-    // "하루 계획",
-    // "회사 준비",
-    // "기타 목록",
-    "Travel",
-    "Study",
-    "Shopping",
-    "Move",
-    "Fitness",
-    "Daily",
-    "Work",
-    "Etc",
-  ];
+  List<String> getMenuTitles(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return [
+      l10n.menuTitlesTravel,
+      l10n.menuTitlesStudy,
+      l10n.menuTitlesShopping,
+      l10n.menuTitlesMove,
+      l10n.menuTitlesFitness,
+      l10n.menuTitlesDaily,
+      l10n.menuTitlesWork,
+      l10n.menuTitlesEtc,
+    ];
+  }
+
 
   // 상단 메뉴 위젯
   Widget buildMenuItem(
@@ -43,6 +41,9 @@ class MainMenuScreen extends StatelessWidget {
     double percent,
     double itemHeight,
   ) {
+
+    final menuTitles = getMenuTitles(context);
+
     // 중앙 로고
     if (index == 4) {
       return Card(
@@ -137,7 +138,6 @@ class MainMenuScreen extends StatelessWidget {
                         opacity: ((0.6 - percent) / 0.7).clamp(0.0, 1.0),
                         child:
                           Icon(menuIcons[menuIndex], size: (itemHeight * 0.45).clamp(14, 40)),
-                          //overflow: TextOverflow.ellipsis,
                       ),
                   ],
               );
@@ -149,6 +149,8 @@ class MainMenuScreen extends StatelessWidget {
   }
 
   Widget buildBottomList(BuildContext context, int index) {
+    final menuTitles = getMenuTitles(context);
+
     return ValueListenableBuilder(
       valueListenable: Hive.box('items').listenable(),
       builder: (context, Box box, _) {
@@ -245,7 +247,6 @@ class MainMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-
     final expandedHeight = screenHeight * 0.65;
     final collapsedHeight = screenHeight * 0.22;
 

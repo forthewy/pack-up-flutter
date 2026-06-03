@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../l10n/app_localizations.dart';
 import '../models/item.dart';
 import 'package:flutter/services.dart';
 
 class MindMapScreen extends StatefulWidget {
   final int category;
 
-  const MindMapScreen({
-    super.key,
-    required this.category,
-  });
+  const MindMapScreen({super.key, required this.category});
 
   @override
   State<MindMapScreen> createState() => _MindMapScreenState();
@@ -20,11 +18,11 @@ class _MindMapScreenState extends State<MindMapScreen> {
     final total = items.length;
     if (total == 0) return 0.0;
 
-    final checked =
-        items.where((e) => e.isChecked).length;
+    final checked = items.where((e) => e.isChecked).length;
 
     return checked / total;
   }
+
   late Box box;
 
   List<Item> items = [];
@@ -39,18 +37,13 @@ class _MindMapScreenState extends State<MindMapScreen> {
     _loadItems();
 
     // 들어오면 세로 고정
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   @override
   void dispose() {
-
     // 나가면 다시 전체 허용
-    SystemChrome.setPreferredOrientations(
-      DeviceOrientation.values,
-    );
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
 
     super.dispose();
   }
@@ -64,20 +57,16 @@ class _MindMapScreenState extends State<MindMapScreen> {
         id: key,
         category: value['category'],
         parentId: value['parentId'],
-        title: value['title']?? '',
+        title: value['title'] ?? '',
         note: value['note'],
         createdAt: value['createdAt'],
         isChecked: value['isChecked'] ?? false,
       );
     }).toList();
 
-    final filtered =
-    allItems.where((i) => i.category == widget.category).toList();
-
-    // debugPrint('불러온 item 개수: ${filtered.length}');
-    // for (final i in filtered) {
-    //   debugPrint('item: ${i.id}, title=${i.title}');
-    // }
+    final filtered = allItems
+        .where((i) => i.category == widget.category)
+        .toList();
 
     setState(() {
       items = filtered;
@@ -93,15 +82,32 @@ class _MindMapScreenState extends State<MindMapScreen> {
       }
     });
   }
+  List<String> getMenuTitles(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return [
+      l10n.menuTitlesTravel,
+      l10n.menuTitlesStudy,
+      l10n.menuTitlesShopping,
+      l10n.menuTitlesMove,
+      l10n.menuTitlesFitness,
+      l10n.menuTitlesDaily,
+      l10n.menuTitlesWork,
+      l10n.menuTitlesEtc,
+    ];
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     final parents = items.where((i) => i.parentId == null).toList();
-    final categoryType = CategoryType.values[widget.category];
+
+    final menuTitles = getMenuTitles(context);
+    final categoryTitle = menuTitles[widget.category];
     // 카테고리타입
     // 아이템 카테고리는 widget.category == item.category
-    final categoryTitle = categoryTitles[categoryType];
-
+    // final categoryTitle = categoryTitles[categoryType];
 
     return Scaffold(
       appBar: AppBar(
@@ -110,16 +116,13 @@ class _MindMapScreenState extends State<MindMapScreen> {
           children: [
             Text("$categoryTitle"),
             Text(
-              "${(progress * 100).round()}%",
+              "${(progress * 100).round()}%", //소수점 반올림
               style: const TextStyle(fontSize: 12),
             ),
           ],
         ),
         actions: [
-          IconButton(
-              onPressed: _addButton,
-              icon: const Icon(Icons.add)
-          )
+          IconButton(onPressed: _addButton, icon: const Icon(Icons.add)),
         ],
       ),
       // 하단 추가 버튼
@@ -135,146 +138,163 @@ class _MindMapScreenState extends State<MindMapScreen> {
         child: const Icon(Icons.add, color: Colors.black),
       ),
 
+      // 항목이 비어있다면
       body: parents.isEmpty
-          ? const Center(
-        child: Text(
-         // '아직 항목이 없어요 🙂\n+ 버튼으로 추가해보세요',
-          'There are no items yet 🙂\nTap the + button to add one',
-          textAlign: TextAlign.center,
-          style:
-            TextStyle(
-                fontSize: 26
-            ),
-        ),
-      )
-          :
-        ListView(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 160),
-        children: parents.map((parent) {
-          final children =
-          items.where((i) => i.parentId == parent.id).toList();
-          final isExpanded = expandedIds.contains(parent.id);
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Column(
-              children: [
-                  ListTile(
-                    leading: Checkbox(
-                      value: parent.isChecked,
-                      onChanged: (value) {
-                        _toggleCheck(parent.id, value ?? false);
-                      },
-                    ),
-                    title: Text(parent.title),
-                    onLongPress: () => _deleteItem(parent.id),
-                    trailing:
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.add, size:20),
-                          onPressed: () => _addChild(parent.id),
-                        ),
-                        if (children.isNotEmpty)
-                          IconButton(
-                            icon: Icon(
-                              isExpanded
-                              ? Icons.expand_less
-                              : Icons.expand_more,
-                          ),
-                            onPressed: () => toggleExpanded(parent.id),
-                        ),
-                      ],
-                    ),
-                    onTap: () => _editItem(parent),
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   Text(
+                    AppLocalizations.of(context)!.emptyItemText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 26),
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _suggestItems,
+                        child: Text(AppLocalizations.of(context)!.suggestionBtnText),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 160),
+              children: parents.map((parent) {
+                final children = items
+                    .where((i) => i.parentId == parent.id)
+                    .toList();
+                final isExpanded = expandedIds.contains(parent.id);
 
-                if (isExpanded)
-                  ...children.map(
-                        (child) => Padding(
-                      padding: const EdgeInsets.only(left: 24),
-                      child:
-                          ListTile(
-                            leading: Checkbox(
-                              value: child.isChecked,
-                              onChanged: (value) {
-                                _toggleCheck(child.id, value ?? false);
-                              },
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Checkbox(
+                          value: parent.isChecked,
+                          onChanged: (value) {
+                            _toggleCheck(parent.id, value ?? false);
+                          },
+                        ),
+                        title: Text(parent.title),
+                        onLongPress: () => _deleteItem(parent.id),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.add, size: 20),
+                              onPressed: () => _addChild(parent.id),
                             ),
-                            title: Text(child.title),
-                            onLongPress: () => _deleteItem(child.id),
-                            subtitle: child.note != null
-                                ? Text(child.note!)
-                                : null,
-                          onTap: () => _editItem(child),
+                            if (children.isNotEmpty)
+                              IconButton(
+                                icon: Icon(
+                                  isExpanded
+                                      ? Icons.expand_less
+                                      : Icons.expand_more,
+                                ),
+                                onPressed: () => toggleExpanded(parent.id),
+                              ),
+                          ],
                         ),
+                        onTap: () => _editItem(parent),
+                      ),
+
+                      if (isExpanded)
+                        ...children.map(
+                          (child) => Padding(
+                            padding: const EdgeInsets.only(left: 24),
+                            child: ListTile(
+                              leading: Checkbox(
+                                value: child.isChecked,
+                                onChanged: (value) {
+                                  _toggleCheck(child.id, value ?? false);
+                                },
+                              ),
+                              title: Text(child.title),
+                              onLongPress: () => _deleteItem(child.id),
+                              subtitle: child.note != null
+                                  ? Text(child.note!)
+                                  : null,
+                              onTap: () => _editItem(child),
+                            ),
+                          ),
                         ),
+                    ],
                   ),
-              ],
+                );
+              }).toList(),
             ),
-          );
-        }).toList(),
-      ),
     );
   }
-    Future<void> _addButton() async{
-      final controller = TextEditingController();
-      final result = await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Add Item'),
-            content: TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                hintText: 'Enter a new item',
-                // '새 항목을 입력하세요'
-              ),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel')
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, controller.text.trim());
-                },
-                child: const Text('Add'),
-              ),
-            ],
-          );
-        }
+
+  Future<void> _suggestItems() async {
+    final suggestions = ['여권', '충전기', '보조배터리', '환전', '여행자 보험'];
+    final selected = List<bool>.filled(
+      suggestions.length,
+      true,
+    );
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(AppLocalizations.of(context)!.suggestions),
+              content:
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: suggestions.length,
+                      itemBuilder: (context, index) {
+                        return CheckboxListTile(
+                          title: Text(suggestions[index]),
+                          value: selected[index],
+                          onChanged: (value) {
+                            setDialogState(() {
+                              selected[index] = value!;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(AppLocalizations.of(context)!.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(AppLocalizations.of(context)!.addItem),
+                      ),
+                  ],
+            );
+          },
         );
-          // 추가 항목 저장
-          if (result == null || result.isEmpty) return;
-          await box.add({
-            'category': widget.category,
-            'parentId': null,
-            'title': result,
-            'note': null,
-            'createdAt' : DateTime.now(),
-            'isChecked': false,
-          });
-        _loadItems();
-    }
+      },
+    );
+  }
 
-    // 자식 추가
-    Future<void> _addChild(int parentId) async{
-      final controller = TextEditingController();
-
-      final result = await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Add Item'),
+  Future<void> _addButton() async {
+    final controller = TextEditingController();
+    final result = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.addItem),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(
-              hintText: 'Enter a new item',
-              //'새 항목을 입력하세요',
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.addItemHintText,
             ),
           ),
           actions: [
@@ -282,79 +302,119 @@ class _MindMapScreenState extends State<MindMapScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context, controller.text.trim());
               },
-              child: const Text('Add'),
+              child: Text(AppLocalizations.of(context)!.add),
             ),
           ],
+        );
+      },
+    );
+    // 추가 항목 저장
+    if (result == null || result.isEmpty) return;
+    await box.add({
+      'category': widget.category,
+      'parentId': null,
+      'title': result,
+      'note': null,
+      'createdAt': DateTime.now(),
+      'isChecked': false,
+    });
+    _loadItems();
+  }
+
+  // 자식 추가
+  Future<void> _addChild(int parentId) async {
+    final controller = TextEditingController();
+
+    final result = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.addItem),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context)!.addItemHintText,
+          ),
         ),
-      );
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, controller.text.trim());
+            },
+            child: Text(AppLocalizations.of(context)!.add),
+          ),
+        ],
+      ),
+    );
 
-      if (result == null || result.isEmpty) return;
-      await box.add({
-        'category': widget.category,
-        'parentId': parentId,
-        'title': result,
-        'note': null,
-        'createdAt' : DateTime.now(),
-        'isChecked': false,
-      });
-      expandedIds.add(parentId);
-      _loadItems();
-    }
+    if (result == null || result.isEmpty) return;
+    await box.add({
+      'category': widget.category,
+      'parentId': parentId,
+      'title': result,
+      'note': null,
+      'createdAt': DateTime.now(),
+      'isChecked': false,
+    });
+    expandedIds.add(parentId);
+    _loadItems();
+  }
 
-    Future<void> _deleteItem(int id) async{
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Confirm Deletion'),
-          content:
-            const Text(
-                //'정말로 삭제하시겠습니까?\n토글로 기재된 item 도 삭제됩니다!'),
-              'Are you sure you want to delete?\nItems listed under this will also be deleted',
-            ),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: Text('Cancel'),
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text('Yes, Delete')
-            ),
-          ],
-        )
-      );
+  Future<void> _deleteItem(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteItem),
+        content: Text(
+          AppLocalizations.of(context)!.deleteAlertText,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: Text(AppLocalizations.of(context)!.confirmDelete),
+          ),
+        ],
+      ),
+    );
 
-      if(confirm != true) return;
-      // 현재 삭제 대상이 부모인지 확인
-      final isParent =
-      items.any((i) => i.parentId == id);
+    if (confirm != true) return;
+    // 현재 삭제 대상이 부모인지 확인
+    final isParent = items.any((i) => i.parentId == id);
 
-      if (isParent) {
-        // 자식들 먼저 삭제
-        final children =
-        items.where((i) => i.parentId == id).toList();
+    if (isParent) {
+      // 자식들 먼저 삭제
+      final children = items.where((i) => i.parentId == id).toList();
 
-        for (final child in children) {
-          await box.delete(child.id);
-        }
+      for (final child in children) {
+        await box.delete(child.id);
       }
-
-      // 자기 자신 삭제
-      await box.delete(id);
-      expandedIds.remove(id);
-
-      _loadItems();
     }
+
+    // 자기 자신 삭제
+    await box.delete(id);
+    expandedIds.remove(id);
+
+    _loadItems();
+  }
 
   Future<void> _toggleCheck(int id, bool newValue) async {
     final raw = box.get(id);
@@ -364,8 +424,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
     await box.put(id, map);
 
     // 부모 체크시 자식 모두 반영
-    final children =
-    items.where((i) => i.parentId == id).toList();
+    final children = items.where((i) => i.parentId == id).toList();
 
     if (children.isNotEmpty) {
       for (final child in children) {
@@ -380,14 +439,11 @@ class _MindMapScreenState extends State<MindMapScreen> {
     final parentId = map['parentId'];
 
     if (parentId != null) {
-      final siblings = items
-          .where((i) => i.parentId == parentId)
-          .toList();
+      final siblings = items.where((i) => i.parentId == parentId).toList();
 
-      final allChecked =
-      siblings.every((i) => i.id == id
-          ? newValue
-          : i.isChecked);
+      final allChecked = siblings.every(
+        (i) => i.id == id ? newValue : i.isChecked,
+      );
 
       final parentRaw = box.get(parentId);
       final parentMap = Map<String, dynamic>.from(parentRaw);
@@ -398,30 +454,28 @@ class _MindMapScreenState extends State<MindMapScreen> {
     }
     _loadItems();
   }
+
   Future<void> _editItem(Item item) async {
-    final controller =
-    TextEditingController(text: item.title);
+    final controller = TextEditingController(text: item.title);
 
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Item'),
+        title: Text(AppLocalizations.of(context)!.editItem),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Edit Item',
-          ),
+          decoration: const InputDecoration(hintText: 'Edit Item'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context, controller.text.trim());
             },
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -439,4 +493,3 @@ class _MindMapScreenState extends State<MindMapScreen> {
     _loadItems();
   }
 }
-

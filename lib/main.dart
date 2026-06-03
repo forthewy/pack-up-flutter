@@ -3,6 +3,7 @@ import 'package:pack_up/screens/start_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:pack_up/l10n/app_localizations.dart';
 
 Future<void> addFontLicense() async {
   final license = await rootBundle.loadString(
@@ -37,6 +38,9 @@ void main() async {
     @override
     Widget build(BuildContext context) {
       return MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             fontFamily: 'GowunDodumKor',

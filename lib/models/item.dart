@@ -19,8 +19,6 @@ const Map<CategoryType, String> categoryTitles = {
   CategoryType.work: 'Work',
   CategoryType.etc: 'Etc',
 };
-// @collection
-//   Id id = Isar.autoIncrement;
 class Item {
   final int id;
   final int category;

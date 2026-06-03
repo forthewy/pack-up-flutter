@@ -219,6 +219,13 @@
             </list>
           </value>
         </entry>
+        <entry key="flutter_localizations">
+          <value>
+            <list>
+              <option value="$USER_HOME$/flutter/packages/flutter_localizations/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter_test">
           <value>
             <list>
@@ -279,6 +286,13 @@
           <value>
             <list>
               <option value="$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/image-4.8.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="intl">
+          <value>
+            <list>
+              <option value="$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/intl-0.20.2/lib" />
             </list>
           </value>
         </entry>
@@ -630,6 +644,7 @@
     <CLASSES>
       <root url="file://$USER_HOME$/flutter/bin/cache/pkg/sky_engine/lib" />
       <root url="file://$USER_HOME$/flutter/packages/flutter/lib" />
+      <root url="file://$USER_HOME$/flutter/packages/flutter_localizations/lib" />
       <root url="file://$USER_HOME$/flutter/packages/flutter_test/lib" />
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/_fe_analyzer_shared-61.0.0/lib" />
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/analyzer-5.13.0/lib" />
@@ -669,6 +684,7 @@
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/http_multi_server-3.2.2/lib" />
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/http_parser-4.1.2/lib" />
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/image-4.8.0/lib" />
+      <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/intl-0.20.2/lib" />
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/io-1.0.5/lib" />
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/js-0.6.7/lib" />
       <root url="file://$PROJECT_DIR$/../flutter_pub_cache/hosted/pub.dev/json_annotation-4.9.0/lib" />
