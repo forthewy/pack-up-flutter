@@ -105,6 +105,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
 
     final menuTitles = getMenuTitles(context);
     final categoryTitle = menuTitles[widget.category];
+
     // 카테고리타입
     // 아이템 카테고리는 widget.category == item.category
     // final categoryTitle = categoryTitles[categoryType];
@@ -231,12 +232,83 @@ class _MindMapScreenState extends State<MindMapScreen> {
     );
   }
 
+  Future<void> _addSuggestedItems(List<String> items) async {
+    for (final title in items) {
+      await box.add({
+        'category': widget.category,
+        'parentId': null,
+        'title': title,
+        'note': null,
+        'createdAt': DateTime.now(),
+        'isChecked': false,
+      });
+    }
+
+    _loadItems();
+  }
+
+
   Future<void> _suggestItems() async {
-    final suggestions = ['여권', '충전기', '보조배터리', '환전', '여행자 보험'];
-    final selected = List<bool>.filled(
-      suggestions.length,
-      true,
-    );
+    final l10n = AppLocalizations.of(context)!;
+
+    final suggestions = [
+      [
+        l10n.travelPassport,
+        l10n.travelCharger,
+        l10n.travelPowerBank,
+        l10n.travelCurrency,
+        l10n.travelInsurance,
+      ],
+      [
+        l10n.studyPen,
+        l10n.studyTextbook,
+      ],
+      [
+        l10n.shoppingMilk,
+        l10n.shoppingRice,
+        l10n.shoppingToiletPaper,
+        l10n.shoppingDetergent,
+        l10n.shoppingTrashBags,
+      ],
+      [
+        l10n.moveMold,
+        l10n.moveDefects,
+        l10n.moveSize,
+        l10n.moveFloor,
+        l10n.moveMoveInDate,
+      ],
+      [
+        l10n.fitnessStretching,
+        l10n.fitnessCardio,
+        l10n.fitnessUpperBody,
+        l10n.fitnessLowerBody,
+        l10n.fitnessCoolDown,
+      ],
+      [
+        l10n.dailyWakeUp,
+        l10n.dailyExercise,
+        l10n.dailyStudy,
+        l10n.dailyCleaning,
+        l10n.dailySleep,
+      ],
+      [
+        l10n.workLaptop,
+      ],
+      [
+        l10n.etcPhone,
+        l10n.etcWallet,
+        l10n.etcKeys,
+        l10n.etcEarphones,
+        l10n.etcCharger,
+      ],
+    ];
+
+    final categorySuggestions =
+    suggestions[widget.category];
+
+    final selected =
+    List.filled(categorySuggestions.length, true);
+
     await showDialog(
       context: context,
       builder: (context) {
@@ -249,10 +321,10 @@ class _MindMapScreenState extends State<MindMapScreen> {
                     width: double.maxFinite,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: suggestions.length,
+                      itemCount: categorySuggestions.length,
                       itemBuilder: (context, index) {
                         return CheckboxListTile(
-                          title: Text(suggestions[index]),
+                          title: Text(categorySuggestions[index]),
                           value: selected[index],
                           onChanged: (value) {
                             setDialogState(() {
@@ -271,8 +343,20 @@ class _MindMapScreenState extends State<MindMapScreen> {
                         child: Text(AppLocalizations.of(context)!.cancel),
                       ),
                       TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
+                        onPressed: () async {
+                          final selectedItems = <String>[];
+
+                          for (int i = 0; i < categorySuggestions.length; i++) {
+                            if (selected[i]) {
+                              selectedItems.add(categorySuggestions[i]);
+                            }
+                          }
+
+                          await _addSuggestedItems(selectedItems);
+
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                         child: Text(AppLocalizations.of(context)!.addItem),
                       ),

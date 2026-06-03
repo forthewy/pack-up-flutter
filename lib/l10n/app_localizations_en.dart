@@ -76,4 +76,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get save => 'Save';
+
+  @override
+  String get travelPassport => 'Passport';
+
+  @override
+  String get travelCharger => 'Charger';
+
+  @override
+  String get travelPowerBank => 'Power Bank';
+
+  @override
+  String get travelCurrency => 'Currency Exchange';
+
+  @override
+  String get travelInsurance => 'Travel Insurance';
+
+  @override
+  String get studyPen => 'Pen';
+
+  @override
+  String get studyTextbook => 'Textbook';
+
+  @override
+  String get shoppingMilk => 'Milk';
+
+  @override
+  String get shoppingRice => 'Rice';
+
+  @override
+  String get shoppingToiletPaper => 'Toilet Paper';
+
+  @override
+  String get shoppingDetergent => 'Detergent';
+
+  @override
+  String get shoppingTrashBags => 'Trash Bags';
+
+  @override
+  String get moveMold => 'Check for Mold';
+
+  @override
+  String get moveDefects => 'Check for Defects';
+
+  @override
+  String get moveSize => 'Check Room Size';
+
+  @override
+  String get moveFloor => 'Check Floor Level';
+
+  @override
+  String get moveMoveInDate => 'Confirm Move-in Date';
+
+  @override
+  String get fitnessStretching => 'Stretching';
+
+  @override
+  String get fitnessCardio => 'Cardio';
+
+  @override
+  String get fitnessUpperBody => 'Upper Body Workout';
+
+  @override
+  String get fitnessLowerBody => 'Lower Body Workout';
+
+  @override
+  String get fitnessCoolDown => 'Cool Down';
+
+  @override
+  String get dailyWakeUp => 'Wake Up Early';
+
+  @override
+  String get dailyExercise => 'Exercise';
+
+  @override
+  String get dailyStudy => 'Study';
+
+  @override
+  String get dailyCleaning => 'Clean Room';
+
+  @override
+  String get dailySleep => 'Sleep Early';
+
+  @override
+  String get etcPhone => 'Phone';
+
+  @override
+  String get etcWallet => 'Wallet';
+
+  @override
+  String get etcKeys => 'Keys';
+
+  @override
+  String get etcEarphones => 'Earphones';
+
+  @override
+  String get etcCharger => 'Charger';
+
+  @override
+  String get workLaptop => 'Laptop';
+
+  @override
+  String get workUsb => 'USB';
 }

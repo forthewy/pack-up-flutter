@@ -76,4 +76,106 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get save => '저장';
+
+  @override
+  String get travelPassport => '여권';
+
+  @override
+  String get travelCharger => '충전기';
+
+  @override
+  String get travelPowerBank => '보조배터리';
+
+  @override
+  String get travelCurrency => '환전';
+
+  @override
+  String get travelInsurance => '여행자 보험';
+
+  @override
+  String get studyPen => '필기구';
+
+  @override
+  String get studyTextbook => '교재';
+
+  @override
+  String get shoppingMilk => '우유';
+
+  @override
+  String get shoppingRice => '쌀';
+
+  @override
+  String get shoppingToiletPaper => '화장지';
+
+  @override
+  String get shoppingDetergent => '세제';
+
+  @override
+  String get shoppingTrashBags => '쓰레기봉투';
+
+  @override
+  String get moveMold => '곰팡이 확인';
+
+  @override
+  String get moveDefects => '하자 확인';
+
+  @override
+  String get moveSize => '평수 확인';
+
+  @override
+  String get moveFloor => '층수 확인';
+
+  @override
+  String get moveMoveInDate => '입주 가능일 확인';
+
+  @override
+  String get fitnessStretching => '스트레칭';
+
+  @override
+  String get fitnessCardio => '유산소 운동';
+
+  @override
+  String get fitnessUpperBody => '상체 운동';
+
+  @override
+  String get fitnessLowerBody => '하체 운동';
+
+  @override
+  String get fitnessCoolDown => '마무리 스트레칭';
+
+  @override
+  String get dailyWakeUp => '일찍 일어나기';
+
+  @override
+  String get dailyExercise => '운동하기';
+
+  @override
+  String get dailyStudy => '공부하기';
+
+  @override
+  String get dailyCleaning => '방 청소하기';
+
+  @override
+  String get dailySleep => '일찍 자기';
+
+  @override
+  String get etcPhone => '휴대폰';
+
+  @override
+  String get etcWallet => '지갑';
+
+  @override
+  String get etcKeys => '열쇠';
+
+  @override
+  String get etcEarphones => '이어폰';
+
+  @override
+  String get etcCharger => '충전기';
+
+  @override
+  String get workLaptop => '노트북';
+
+  @override
+  String get workUsb => 'USB';
 }

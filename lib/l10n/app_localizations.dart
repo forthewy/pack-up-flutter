@@ -232,6 +232,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
+
+  /// No description provided for @travelPassport.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport'**
+  String get travelPassport;
+
+  /// No description provided for @travelCharger.
+  ///
+  /// In en, this message translates to:
+  /// **'Charger'**
+  String get travelCharger;
+
+  /// No description provided for @travelPowerBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Power Bank'**
+  String get travelPowerBank;
+
+  /// No description provided for @travelCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency Exchange'**
+  String get travelCurrency;
+
+  /// No description provided for @travelInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel Insurance'**
+  String get travelInsurance;
+
+  /// No description provided for @studyPen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pen'**
+  String get studyPen;
+
+  /// No description provided for @studyTextbook.
+  ///
+  /// In en, this message translates to:
+  /// **'Textbook'**
+  String get studyTextbook;
+
+  /// No description provided for @shoppingMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk'**
+  String get shoppingMilk;
+
+  /// No description provided for @shoppingRice.
+  ///
+  /// In en, this message translates to:
+  /// **'Rice'**
+  String get shoppingRice;
+
+  /// No description provided for @shoppingToiletPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Toilet Paper'**
+  String get shoppingToiletPaper;
+
+  /// No description provided for @shoppingDetergent.
+  ///
+  /// In en, this message translates to:
+  /// **'Detergent'**
+  String get shoppingDetergent;
+
+  /// No description provided for @shoppingTrashBags.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash Bags'**
+  String get shoppingTrashBags;
+
+  /// No description provided for @moveMold.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Mold'**
+  String get moveMold;
+
+  /// No description provided for @moveDefects.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Defects'**
+  String get moveDefects;
+
+  /// No description provided for @moveSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Room Size'**
+  String get moveSize;
+
+  /// No description provided for @moveFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Floor Level'**
+  String get moveFloor;
+
+  /// No description provided for @moveMoveInDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Move-in Date'**
+  String get moveMoveInDate;
+
+  /// No description provided for @fitnessStretching.
+  ///
+  /// In en, this message translates to:
+  /// **'Stretching'**
+  String get fitnessStretching;
+
+  /// No description provided for @fitnessCardio.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardio'**
+  String get fitnessCardio;
+
+  /// No description provided for @fitnessUpperBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper Body Workout'**
+  String get fitnessUpperBody;
+
+  /// No description provided for @fitnessLowerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower Body Workout'**
+  String get fitnessLowerBody;
+
+  /// No description provided for @fitnessCoolDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool Down'**
+  String get fitnessCoolDown;
+
+  /// No description provided for @dailyWakeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake Up Early'**
+  String get dailyWakeUp;
+
+  /// No description provided for @dailyExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise'**
+  String get dailyExercise;
+
+  /// No description provided for @dailyStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Study'**
+  String get dailyStudy;
+
+  /// No description provided for @dailyCleaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean Room'**
+  String get dailyCleaning;
+
+  /// No description provided for @dailySleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep Early'**
+  String get dailySleep;
+
+  /// No description provided for @etcPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get etcPhone;
+
+  /// No description provided for @etcWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get etcWallet;
+
+  /// No description provided for @etcKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'Keys'**
+  String get etcKeys;
+
+  /// No description provided for @etcEarphones.
+  ///
+  /// In en, this message translates to:
+  /// **'Earphones'**
+  String get etcEarphones;
+
+  /// No description provided for @etcCharger.
+  ///
+  /// In en, this message translates to:
+  /// **'Charger'**
+  String get etcCharger;
+
+  /// No description provided for @workLaptop.
+  ///
+  /// In en, this message translates to:
+  /// **'Laptop'**
+  String get workLaptop;
+
+  /// No description provided for @workUsb.
+  ///
+  /// In en, this message translates to:
+  /// **'USB'**
+  String get workUsb;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
