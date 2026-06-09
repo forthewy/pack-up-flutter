@@ -23,6 +23,8 @@
       "confirmDelete": "네, 삭제합니다",
       "editItem" : "항목 수정",
         "save" : "저장",
+  "deleteAll" : "전체 삭제",
+ "deleteAllAlertText": "모든 항목을 삭제하시겠습니까?\n\n개별 항목 삭제는\n항목을 길게 눌러 이용할 수 있습니다.",
         "travelPassport": "여권",
         "travelCharger": "충전기",
         "travelPowerBank": "보조배터리",

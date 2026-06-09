@@ -123,6 +123,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
           ],
         ),
         actions: [
+          ElevatedButton(child: Text(AppLocalizations.of(context)!.deleteAll), onPressed: () {_deleteAllItems();}),
           IconButton(onPressed: _addButton, icon: const Icon(Icons.add)),
         ],
       ),
@@ -186,10 +187,15 @@ class _MindMapScreenState extends State<MindMapScreen> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            // 수정
+                            IconButton(onPressed: () {_editItem(parent);}, icon: Icon(Icons.edit)),
+                            // 추가
                             IconButton(
                               icon: const Icon(Icons.add, size: 20),
                               onPressed: () => _addChild(parent.id),
                             ),
+
+                            // 가지 항목 보여주기
                             if (children.isNotEmpty)
                               IconButton(
                                 icon: Icon(
@@ -199,6 +205,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
                                 ),
                                 onPressed: () => toggleExpanded(parent.id),
                               ),
+
                           ],
                         ),
                         onTap: () => _editItem(parent),
@@ -220,7 +227,12 @@ class _MindMapScreenState extends State<MindMapScreen> {
                               subtitle: child.note != null
                                   ? Text(child.note!)
                                   : null,
+                              trailing: IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _editItem(child),
+                              ),
                               onTap: () => _editItem(child),
+
                             ),
                           ),
                         ),
@@ -293,6 +305,7 @@ class _MindMapScreenState extends State<MindMapScreen> {
       ],
       [
         l10n.workLaptop,
+        l10n.workUsb,
       ],
       [
         l10n.etcPhone,
@@ -453,6 +466,34 @@ class _MindMapScreenState extends State<MindMapScreen> {
     });
     expandedIds.add(parentId);
     _loadItems();
+  }
+
+  Future<void> _deleteAllItems() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteAll),
+        content: Text(AppLocalizations.of(context)!.deleteAllAlertText),
+      actions: [
+        TextButton(onPressed: () { Navigator.pop(context, false);}, child: Text(AppLocalizations.of(context)!.cancel),),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+          child: Text(AppLocalizations.of(context)!.confirmDelete),
+        ),
+      ]
+      ),
+    );
+    if (confirm != true) return;
+    final keysToDelete = items.map((e) => e.id).toList();
+
+    await box.deleteAll(keysToDelete);
+
+    expandedIds.clear();
+
+    _loadItems();
+
   }
 
   Future<void> _deleteItem(int id) async {

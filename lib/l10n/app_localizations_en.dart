@@ -78,6 +78,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
+  String get deleteAll => 'Clear List';
+
+  @override
+  String get deleteAllAlertText => 'Are you sure you want to delete all items?\n\nYou can delete individual items by pressing and holding them.';
+
+  @override
   String get travelPassport => 'Passport';
 
   @override

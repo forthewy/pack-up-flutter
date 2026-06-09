@@ -78,6 +78,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get save => '저장';
 
   @override
+  String get deleteAll => '전체 삭제';
+
+  @override
+  String get deleteAllAlertText => '모든 항목을 삭제하시겠습니까?\n\n개별 항목 삭제는\n항목을 길게 눌러 이용할 수 있습니다.';
+
+  @override
   String get travelPassport => '여권';
 
   @override

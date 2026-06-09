@@ -233,6 +233,18 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get save;
 
+  /// No description provided for @deleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear List'**
+  String get deleteAll;
+
+  /// No description provided for @deleteAllAlertText.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete all items?\n\nYou can delete individual items by pressing and holding them.'**
+  String get deleteAllAlertText;
+
   /// No description provided for @travelPassport.
   ///
   /// In en, this message translates to:

@@ -23,6 +23,8 @@
   "confirmDelete": "Yes, Delete",
   "editItem" : "Edit Item",
   "save" : "Save",
+  "deleteAll" : "Clear List",
+    "deleteAllAlertText" : "Are you sure you want to delete all items?\n\nYou can delete individual items by pressing and holding them.",
   "travelPassport": "Passport",
   "travelCharger": "Charger",
   "travelPowerBank": "Power Bank",
