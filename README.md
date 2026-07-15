@@ -17,6 +17,6 @@
 
 ## Future Plans
 
-- Android Native(Kotlin) 버전 개발
+- Android Native(Kotlin) 버전 재구
 - Jetpack Compose 적용
 - Room Database 적용
