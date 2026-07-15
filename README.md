@@ -1,16 +1,22 @@
-# pack_up
+# Pack Up
 
-A new Flutter project.
+여행이나 외출 전에 필요한 준비물을 관리하는 체크리스트 앱입니다.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- 체크리스트 생성
+- 카테고리별 관리
+- 체크 상태 저장
+- 준비물 추가/삭제
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter
+- Dart
+- Hive
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Future Plans
+
+- Android Native(Kotlin) 버전 개발
+- Jetpack Compose 적용
+- Room Database 적용
